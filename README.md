@@ -241,7 +241,7 @@ func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
 
 ## Wiring the days selector
 
-<img width="564" src="https://user-images.githubusercontent.com/47273077/190842307-7c4c70a9-3d97-4ce4-8cc1-b6b50a56d9e4.gif">
+<img width="300" src="https://user-images.githubusercontent.com/47273077/190842307-7c4c70a9-3d97-4ce4-8cc1-b6b50a56d9e4.gif">
 
 ```swift
 import UIKit
