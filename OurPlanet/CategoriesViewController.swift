@@ -64,20 +64,29 @@ class CategoriesViewController: UIViewController, UITableViewDataSource, UITable
 //      .disposed(by: disposeBag)
     
     let eoCategories = EONET.categories
-    let downloadedEvents = EONET.events(forLast: 360)
+    let downloadedEvents = eoCategories
+      .flatMap { categories in
+        return Observable.from(categories.map { category in
+          EONET.events(forLast: 360, category: category)
+        })
+      }
+      .merge(maxConcurrent: 2)
+
     
-    let updatedCategories = Observable
-      .combineLatest(eoCategories, downloadedEvents) {
-        (categories, events) -> [EOCategory] in
-        
-        return categories.map { category in
-          var cat = category
-          cat.events = events.filter {
-            $0.categories.contains(where: { $0.id == category.id })
+    let updatedCategories = eoCategories.flatMap { categories in
+      downloadedEvents.scan(categories) { updated, events in
+        return updated.map { category in
+          let eventsForCategory = EONET.filteredEvents(events: events, forCategory: category)
+          if !eventsForCategory.isEmpty {
+            var cat = category
+            cat.events = cat.events + eventsForCategory
+            return cat
           }
-          return cat
+          return category
         }
       }
+    }
+
     
     eoCategories
       .concat(updatedCategories)
@@ -95,11 +104,28 @@ class CategoriesViewController: UIViewController, UITableViewDataSource, UITable
     let cell = tableView.dequeueReusableCell(withIdentifier: "categoryCell")!
     
     let category = categories.value[indexPath.row]
-    cell.textLabel?.text = category.name
+    cell.textLabel?.text = "\(category.name) (\(category.events.count))"
+    cell.accessoryType = (category.events.count > 0) ? .disclosureIndicator : .none
+    
     cell.detailTextLabel?.text = category.description
+    
+
 
     return cell
   }
+  
+  func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+    let category = categories.value[indexPath.row]
+    tableView.deselectRow(at: indexPath, animated: true)
+
+    guard !category.events.isEmpty else { return }
+
+    let eventsController = storyboard!.instantiateViewController(withIdentifier: "events") as! EventsViewController
+    eventsController.title = category.name
+    eventsController.events.accept(category.events)
+    navigationController!.pushViewController(eventsController, animated: true)
+  }
+
   
 }
 
