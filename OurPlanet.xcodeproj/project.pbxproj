@@ -106,7 +106,6 @@
 				33FD31FBB5A8074AED33F8C0 /* Pods-OurPlanet.debug.xcconfig */,
 				3C7B09A3B9656142757AE986 /* Pods-OurPlanet.release.xcconfig */,
 			);
-			name = Pods;
 			path = Pods;
 			sourceTree = "<group>";
 		};
@@ -398,6 +397,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = OurPlanet/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.raywenderlich.OurPlanet;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -412,6 +412,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = OurPlanet/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.raywenderlich.OurPlanet;
 				PRODUCT_NAME = "$(TARGET_NAME)";

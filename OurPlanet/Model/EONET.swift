@@ -32,12 +32,39 @@
 
 import Foundation
 import RxSwift
-import RxCocoa
 
 class EONET {
-  static let API = "https://eonet.sci.gsfc.nasa.gov/api/v2.1"
+  static let API = "https://eonet.gsfc.nasa.gov/api/v2.1"
   static let categoriesEndpoint = "/categories"
   static let eventsEndpoint = "/events"
+  
+  // MARK: 2 . Fetch categories
+  static var categories: Observable<[EOCategory]> = {
+    let request: Observable<[EOCategory]> = EONET.request(endpoint: categoriesEndpoint, contentIdentifier: "categories")
+
+      return request
+        .map { categories in categories.sorted { $0.name < $1.name } }
+        .catchErrorJustReturn([])
+        .share(replay: 1, scope: .forever)
+    }()
+  
+  // MARK: 3 . Adding the event download service
+  private static func events(forLast days: Int, closed: Bool) -> Observable<[EOEvent]> {
+    let query: [String: Any] = [
+      "days": days,
+      "status": (closed ? "closed" : "open")
+    ]
+    let request: Observable<[EOEvent]> = EONET.request(endpoint: eventsEndpoint, query: query, contentIdentifier: "events")
+    return request.catchErrorJustReturn([])
+  }
+  
+  static func events(forLast days: Int = 360) -> Observable<[EOEvent]> {
+    let openEvents = events(forLast: days, closed: false)
+    let closedEvents = events(forLast: days, closed: true)
+
+    return openEvents.concat(closedEvents)
+  }
+
 
   static func jsonDecoder(contentIdentifier: String) -> JSONDecoder {
     let decoder = JSONDecoder()
@@ -54,5 +81,38 @@ class EONET {
       }
       .sorted(by: EOEvent.compareDates)
   }
+  
+  // MARK: 1 . Generic request technique
+  static func request<T: Decodable>(endpoint: String, query: [String: Any] = [:], contentIdentifier: String) -> Observable<T> {
+    do {
+      guard let url = URL(string: API)?.appendingPathComponent(endpoint),
+            var components = URLComponents(url: url, resolvingAgainstBaseURL: true) else {
+        throw EOError.invalidURL(endpoint)
+      }
+      
+      components.queryItems = try query.compactMap { (key, value) in
+        guard let v = value as? CustomStringConvertible else {
+          throw EOError.invalidParameter(key, value)
+        }
+        return URLQueryItem(name: key, value: v.description)
+      }
+      
+      guard let finalURL = components.url else {
+        throw EOError.invalidURL(endpoint)
+      }
+      
+      let request = URLRequest(url: finalURL)
 
+      return URLSession.shared.rx.response(request: request)
+        .map { (result: (response: HTTPURLResponse, data: Data)) -> T in
+          let decoder = self.jsonDecoder(contentIdentifier: contentIdentifier)
+          let envelope = try decoder.decode(EOEnvelope<T>.self, from: result.data)
+          return envelope.content
+        }
+      
+    } catch {
+      return Observable.empty()
+    }
+    
+  }
 }
