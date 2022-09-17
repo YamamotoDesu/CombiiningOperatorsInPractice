@@ -65,6 +65,28 @@
   }
 ```
 
+## 4 . Downloading in parallel
+```swift
+  static func events(forLast days: Int = 360) -> Observable<[EOEvent]> {
+    let openEvents = events(forLast: days, closed: false)
+    let closedEvents = events(forLast: days, closed: true)
+
+//    return openEvents.concat(closedEvents)
+    
+    // Downloading in parallel
+    return Observable.of(openEvents, closedEvents)
+      .merge()
+      .reduce([]) { running, new in
+        running + new
+      }
+
+  }
+ ```
+ ![image](https://user-images.githubusercontent.com/47273077/190841614-3412f2e4-a2c3-40af-b4bc-18df310158ce.png)
+
+
+------
+
 ![image](https://user-images.githubusercontent.com/47273077/190841321-8900a07a-f379-44ef-8960-0693ac46ba5e.png)
 
 ```swift
