@@ -171,7 +171,7 @@ class CategoriesViewController: UIViewController, UITableViewDataSource, UITable
 
 ![image](https://user-images.githubusercontent.com/47273077/190841372-a2ee2506-fef3-4380-b5be-7d20715a71fc.png)
 
-2 . Event View Controller
+## 2 . Event View Controller
 
 EventsViewController
 ```swift
