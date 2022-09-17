@@ -53,7 +53,7 @@
     }()
  ```
     
-// 3 . Adding the event download service(Model)
+##  3 . Adding the event download service(Model)
 ```swift
   private static func events(forLast days: Int, closed: Bool) -> Observable<[EOEvent]> {
     let query: [String: Any] = [
