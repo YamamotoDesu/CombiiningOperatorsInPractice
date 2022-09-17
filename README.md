@@ -65,6 +65,8 @@
   }
 ```
 
+![image](https://user-images.githubusercontent.com/47273077/190841321-8900a07a-f379-44ef-8960-0693ac46ba5e.png)
+
 ## 4 . Downloading in parallel
 ```swift
   static func events(forLast days: Int = 360) -> Observable<[EOEvent]> {
@@ -87,7 +89,7 @@
 
 ------
 
-![image](https://user-images.githubusercontent.com/47273077/190841321-8900a07a-f379-44ef-8960-0693ac46ba5e.png)
+## ViewController
 
 ```swift
 import UIKit
@@ -155,7 +157,8 @@ class CategoriesViewController: UIViewController, UITableViewDataSource, UITable
     let cell = tableView.dequeueReusableCell(withIdentifier: "categoryCell")!
     
     let category = categories.value[indexPath.row]
-    cell.textLabel?.text = category.name
+    cell.textLabel?.text = "\(category.name) (\(category.events.count))"
+    cell.accessoryType = (category.events.count > 0) ? .disclosureIndicator : .none
     cell.detailTextLabel?.text = category.description
 
     return cell
